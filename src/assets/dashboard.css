@@ -1,0 +1,38 @@
+/* src/assets/dashboard.css */
+
+.dashboard-container {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh; /* Full viewport height */
+}
+
+.sidebar {
+    width: 200px; /* Fixed width for the sidebar */
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+.main-content {
+    flex: 1; /* Take up the remaining space */
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+/* Styling for sidebar links */
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 10px 0;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #333;
+}
+
+.sidebar a:hover {
+    color: #007bff; /* Change color on hover */
+}

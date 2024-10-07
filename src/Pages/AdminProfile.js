@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import { useDispatch } from 'react-redux';
-import { setRooms } from '../redux/hotelSlice';
+import { addRoom } from '../redux/hotelSlice'; // Updated import to match the action
 import { db } from '../Firebase/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import '../assets/footer.css';
-
 
 function AdminProfile() {
     const dispatch = useDispatch();
@@ -47,9 +46,14 @@ function AdminProfile() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const docRef = await addDoc(collection(db, 'rooms'), roomDetails);
+            const roomData = {
+                ...roomDetails,
+                price: parseFloat(roomDetails.price), // Ensure price is a number
+            };
+            const docRef = await addDoc(collection(db, 'rooms'), roomData);
             console.log('Document written with ID: ', docRef.id);
-            dispatch(setRooms((prevRooms) => [...prevRooms, { id: docRef.id, ...roomDetails }]));
+            // Dispatch the addRoom action to update the Redux state
+            dispatch(addRoom({ id: docRef.id, ...roomData }));
             // Reset form after submission
             setRoomDetails({
                 name: '',
@@ -75,11 +79,16 @@ function AdminProfile() {
                     </label>
                     <label>
                         Price:
-                        <input type="text" name="price" value={roomDetails.price} onChange={handleChange} required />
+                        <input type="number" name="price" value={roomDetails.price} onChange={handleChange} required />
                     </label>
                     <label>
                         Breakfast Included:
-                        <input type="checkbox" name="breakfastIncluded" checked={roomDetails.breakfastIncluded} onChange={(e) => setRoomDetails({ ...roomDetails, breakfastIncluded: e.target.checked })} />
+                        <input 
+                            type="checkbox" 
+                            name="breakfastIncluded" 
+                            checked={roomDetails.breakfastIncluded} 
+                            onChange={(e) => setRoomDetails({ ...roomDetails, breakfastIncluded: e.target.checked })} 
+                        />
                     </label>
                     <label>
                         Image URL:

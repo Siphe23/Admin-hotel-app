@@ -1,22 +1,29 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const initialState = {
+  currentUser: null,
+  error: null,
+};
+
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    isAuthenticated: false,
-    userRole: null,
-  },
+  initialState,
   reducers: {
-    login: (state, action) => {
-      state.isAuthenticated = true;
-      state.userRole = action.payload.role; // Assuming payload includes user role
+    setCurrentUser(state, action) {
+      state.currentUser = action.payload;
     },
-    // Add more reducers as needed
+    clearCurrentUser(state) {
+      state.currentUser = null;
+    },
+    setError(state, action) {
+      state.error = action.payload;
+    },
+    login(state, action) { // Add this action
+      state.currentUser = action.payload;
+    },
   },
 });
 
-// Export actions
-export const { login, setRooms } = authSlice.actions;
+export const { setCurrentUser, clearCurrentUser, setError, login } = authSlice.actions;
 
-// Export reducer
 export default authSlice.reducer;

@@ -7,30 +7,30 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { useDispatch } from 'react-redux';
-
 import { login } from '../redux/authSlice'; // Correct import
 
-
 function AdminSignup() {
-  const dispatch = useDispatch(); // For dispatching login actions
+  const dispatch = useDispatch();
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null); // Store the uploaded image file
+  const [imageFile, setImageFile] = useState(null);
   const [userDetails, setUserDetails] = useState({
     username: '',
     email: '',
     phone: '',
-    userType: 'admin', // Default to 'admin'
+    userType: 'admin',
     password: ''
   });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result); // Preview the image
+        setImagePreview(reader.result);
       };
-      setImageFile(file); // Save the file for Firebase upload
+      setImageFile(file);
       reader.readAsDataURL(file);
     }
   };
@@ -40,12 +40,12 @@ function AdminSignup() {
     setUserDetails((prevDetails) => ({ ...prevDetails, [id]: value }));
   };
 
-  // Function to handle signup with Firebase
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(''); // Reset error message
+    setSuccessMessage(''); // Reset success message
 
     try {
-      // Create user in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         userDetails.email,
@@ -53,7 +53,6 @@ function AdminSignup() {
       );
       const user = userCredential.user;
 
-      // Upload profile picture if provided
       let profileImageUrl = '';
       if (imageFile) {
         const imageRef = ref(storage, `profilePictures/${user.uid}`);
@@ -61,7 +60,6 @@ function AdminSignup() {
         profileImageUrl = await getDownloadURL(imageRef);
       }
 
-      // Save user details in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         username: userDetails.username,
         email: userDetails.email,
@@ -70,11 +68,9 @@ function AdminSignup() {
         profilePicture: profileImageUrl,
       });
 
-      alert('User signed up successfully!');
-      // Dispatch login action with user role
+      setSuccessMessage('User signed up successfully!');
       dispatch(login({ role: userDetails.userType }));
 
-      // Reset form fields
       setUserDetails({
         username: '',
         email: '',
@@ -85,7 +81,7 @@ function AdminSignup() {
       setImagePreview(null);
     } catch (error) {
       console.error('Error signing up: ', error);
-      alert('Error during signup');
+      setErrorMessage(error.message); // Display Firebase error message
     }
   };
 
@@ -141,6 +137,8 @@ function AdminSignup() {
           required 
         />
         <button type="submit">Sign Up</button>
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       </form>
       <Footer />
     </>

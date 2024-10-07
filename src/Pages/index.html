@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacking Simulation</title>
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: monospace;
+        }
+        #console {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    <div id="console">Initializing Hack...\n</div>
+    <script>
+        let consoleDiv = document.getElementById('console');
+        let commands = [
+            'Connecting to 192.168.1.1...',
+            'Accessing database...',
+            'Extracting encrypted passwords...',
+            'Decrypting...',
+            'Passwords found!',
+            'Sending data to remote server...',
+            'Hack complete.'
+        ];
+
+        let index = 0;
+
+        function fakeHacking() {
+            if (index < commands.length) {
+                consoleDiv.innerHTML += commands[index] + '\n';
+                index++;
+                setTimeout(fakeHacking, 1000); // 1 second delay between commands
+            }
+        }
+
+        setTimeout(fakeHacking, 2000); // Wait 2 seconds before starting
+    </script>
+</body>
+</html>

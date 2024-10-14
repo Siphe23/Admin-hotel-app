@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoom, updateRoom, deleteRoom, fetchRooms } from '../redux/hotelSlice';
+import { addRoom, updateRoom, deleteRoom, fetchRooms } from '../redux/hotelSlice'; // Ensure fetchRooms is imported
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import '../assets/dashboard.css'; 
+import '../assets/dashboard.css';
 
 function AdminDashboard() {
   const dispatch = useDispatch();
   const { rooms = [], loading, error } = useSelector((state) => state.hotel);
 
- 
   const [roomName, setRoomName] = useState('');
   const [roomPrice, setRoomPrice] = useState('');
-  const [roomStatus, setRoomStatus] = useState('booked'); 
+  const [roomStatus, setRoomStatus] = useState('booked');
   const [editingRoomId, setEditingRoomId] = useState(null);
 
   useEffect(() => {
@@ -23,19 +22,17 @@ function AdminDashboard() {
     e.preventDefault();
     const roomData = {
       name: roomName,
-      price: roomPrice,
+      price: Number(roomPrice),
       status: roomStatus,
     };
 
     if (editingRoomId) {
       dispatch(updateRoom({ id: editingRoomId, data: roomData }));
-      setEditingRoomId(null); 
+      setEditingRoomId(null);
     } else {
-      
       dispatch(addRoom(roomData));
     }
 
-   
     setRoomName('');
     setRoomPrice('');
     setRoomStatus('booked');
@@ -69,11 +66,9 @@ function AdminDashboard() {
           <h1>Welcome to the Admin Dashboard</h1>
           <p>Here you can manage your application settings, view reports, and more.</p>
 
-        
           {loading && <p>Loading rooms...</p>}
           {error && <p>Error loading rooms: {error}</p>}
 
-         
           <form onSubmit={handleSubmit}>
             <h2>{editingRoomId ? 'Edit Room' : 'Booked Room Information'}</h2>
             <input
@@ -105,8 +100,7 @@ function AdminDashboard() {
               <h2>Booked Rooms</h2>
               <ul>
                 {rooms
-                  .filter(room => room.status === 'booked') 
-                
+                  .filter(room => room.status === 'booked')
                   .map((room) => (
                     <li key={room.id}>
                       <h3>{room.name}</h3>

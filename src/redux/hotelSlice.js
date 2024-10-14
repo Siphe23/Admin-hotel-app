@@ -1,75 +1,61 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../Firebase/firebase'; 
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../Firebase/firebase';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 
-
-export const fetchRooms = createAsyncThunk('rooms/fetchRooms', async () => {
-    const querySnapshot = await getDocs(collection(db, 'rooms'));
-    const rooms = [];
-    querySnapshot.forEach((doc) => {
-        rooms.push({ id: doc.id, ...doc.data() });
-    });
-    return rooms;
+// Fetch rooms from Firestore
+export const fetchRooms = createAsyncThunk('hotels/fetchRooms', async () => {
+    const roomsCollection = collection(db, 'rooms');
+    const roomSnapshot = await getDocs(roomsCollection);
+    const roomList = roomSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return roomList;
 });
 
-export const addRoom = createAsyncThunk('rooms/addRoom', async (room) => {
-    const docRef = await addDoc(collection(db, 'rooms'), room);
-    return { id: docRef.id, ...room };
+// Add a new room to Firestore
+export const addRoom = createAsyncThunk('hotels/addRoom', async (roomData) => {
+    const docRef = await addDoc(collection(db, 'rooms'), roomData);
+    return { id: docRef.id, ...roomData };
 });
 
-export const deleteRoom = createAsyncThunk('rooms/deleteRoom', async (id) => {
-    await deleteDoc(doc(db, 'rooms', id));
-    return id; 
-});
-
-export const updateRoom = createAsyncThunk('rooms/updateRoom', async ({ id, room }) => {
+// Update room in Firestore
+export const updateRoom = createAsyncThunk('hotels/updateRoom', async ({ id, updatedRoomData }) => {
     const roomRef = doc(db, 'rooms', id);
-    await updateDoc(roomRef, room);
-    return { id, ...room }; 
+    await updateDoc(roomRef, updatedRoomData);
+    return { id, ...updatedRoomData };
 });
 
+// Delete room from Firestore
+export const deleteRoom = createAsyncThunk('hotels/deleteRoom', async (id) => {
+    const roomRef = doc(db, 'rooms', id);
+    await deleteDoc(roomRef);
+    return id;
+});
 
 const hotelSlice = createSlice({
-    name: 'hotel',
+    name: 'hotels',
     initialState: {
         rooms: [],
-        loading: false,
+        status: 'idle',
         error: null,
     },
-    reducers: {
-      
-        setRooms: (state, action) => {
-            state.rooms = action.payload;
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchRooms.pending, (state) => {
-                state.loading = true;
-            })
             .addCase(fetchRooms.fulfilled, (state, action) => {
-                state.loading = false;
                 state.rooms = action.payload;
-            })
-            .addCase(fetchRooms.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message;
             })
             .addCase(addRoom.fulfilled, (state, action) => {
                 state.rooms.push(action.payload);
             })
-            .addCase(deleteRoom.fulfilled, (state, action) => {
-                state.rooms = state.rooms.filter(room => room.id !== action.payload);
-            })
             .addCase(updateRoom.fulfilled, (state, action) => {
-                const index = state.rooms.findIndex(room => room.id === action.payload.id);
+                const index = state.rooms.findIndex((room) => room.id === action.payload.id);
                 if (index !== -1) {
                     state.rooms[index] = action.payload;
                 }
+            })
+            .addCase(deleteRoom.fulfilled, (state, action) => {
+                state.rooms = state.rooms.filter((room) => room.id !== action.payload);
             });
     },
 });
 
-
-export const { setRooms } = hotelSlice.actions;
 export default hotelSlice.reducer;

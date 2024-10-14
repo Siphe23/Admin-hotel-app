@@ -1,24 +1,23 @@
-/* src/assets/dashboard.css */
+
 
 .dashboard-container {
     display: flex;
     flex-direction: row;
-    min-height: 100vh; /* Full viewport height */
+    min-height: 100vh; 
 }
 
 .sidebar {
-    width: 200px; /* Fixed width for the sidebar */
+    width: 200px;
     background-color: #f4f4f4;
     padding: 20px;
 }
 
 .main-content {
-    flex: 1; /* Take up the remaining space */
+    flex: 1; 
     padding: 20px;
     background-color: #ffffff;
 }
 
-/* Styling for sidebar links */
 .sidebar ul {
     list-style-type: none;
     padding: 0;
@@ -34,5 +33,5 @@
 }
 
 .sidebar a:hover {
-    color: #007bff; /* Change color on hover */
+    color: #007bff; 
 }

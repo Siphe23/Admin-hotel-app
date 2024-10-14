@@ -1,15 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './authSlice'; // Ensure this import is correct
-import hotelReducer from './hotelSlice'; // Ensure you have a hotelSlice if needed
+import authReducer from './authSlice'; 
+import hotelReducer from './hotelSlice'; 
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    hotel: hotelReducer, // Only include this if hotelReducer is defined
+    hotel: hotelReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Disable the serializable check if necessary
+      serializableCheck: false, 
     }),
 });
 

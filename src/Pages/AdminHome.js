@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
-import { storage } from '../Firebase/firebase'; // Ensure your firebase configuration is correct
+import { storage } from '../Firebase/firebase'; 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../assets/home.css';
@@ -9,9 +9,8 @@ function AdminHome() {
   const [backgroundImages, setBackgroundImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Fetch background images from Firebase
   useEffect(() => {
-    const imagesRef = ref(storage, 'Background-images/'); // Replace 'Background-images' with the folder name in your Firebase storage
+    const imagesRef = ref(storage, 'Background-images/'); 
 
     listAll(imagesRef)
       .then((result) => {
@@ -25,14 +24,13 @@ function AdminHome() {
       });
   }, []);
 
-  // Slideshow logic: Change the background every 5 seconds
   useEffect(() => {
     if (backgroundImages.length > 0) {
       const interval = setInterval(() => {
         setCurrentImageIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
-      }, 5000); // Change the image every 5 seconds
+      }, 5000);
 
-      return () => clearInterval(interval); // Clean up the interval on unmount
+      return () => clearInterval(interval); 
     }
   }, [backgroundImages]);
 
@@ -43,10 +41,10 @@ function AdminHome() {
         className="admin-home-container"
         style={{
           backgroundImage: `url(${backgroundImages[currentImageIndex]})`,
-          backgroundSize: 'cover',       // Ensures the background covers the entire area
-          backgroundPosition: 'center',  // Centers the background image
-          backgroundRepeat: 'no-repeat', // Prevents the background from repeating
-          height: '100vh',               // Full height of the viewport
+          backgroundSize: 'cover',      
+          backgroundPosition: 'center',  
+          backgroundRepeat: 'no-repeat', 
+          height: '100vh',             
         }}
       >
         <header className="welcome-section">

@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../Firebase/firebase'; // Ensure this path is correct
+import { db } from '../Firebase/firebase'; 
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
-// Thunks for fetching, adding, deleting, and updating rooms
+
 export const fetchRooms = createAsyncThunk('rooms/fetchRooms', async () => {
     const querySnapshot = await getDocs(collection(db, 'rooms'));
     const rooms = [];
@@ -19,16 +19,16 @@ export const addRoom = createAsyncThunk('rooms/addRoom', async (room) => {
 
 export const deleteRoom = createAsyncThunk('rooms/deleteRoom', async (id) => {
     await deleteDoc(doc(db, 'rooms', id));
-    return id; // Return the id of the deleted room
+    return id; 
 });
 
 export const updateRoom = createAsyncThunk('rooms/updateRoom', async ({ id, room }) => {
     const roomRef = doc(db, 'rooms', id);
     await updateDoc(roomRef, room);
-    return { id, ...room }; // Return the updated room data
+    return { id, ...room }; 
 });
 
-// Create the slice
+
 const hotelSlice = createSlice({
     name: 'hotel',
     initialState: {
@@ -37,7 +37,7 @@ const hotelSlice = createSlice({
         error: null,
     },
     reducers: {
-        // Add the setRooms reducer
+      
         setRooms: (state, action) => {
             state.rooms = action.payload;
         },
@@ -70,6 +70,6 @@ const hotelSlice = createSlice({
     },
 });
 
-// Export the reducer and actions
+
 export const { setRooms } = hotelSlice.actions;
 export default hotelSlice.reducer;

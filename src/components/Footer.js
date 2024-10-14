@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { db } from '../Firebase/firebase'; 
+import { db } from '../Firebase/firebase';  
 import { collection, addDoc } from 'firebase/firestore';
-import '../assets/footer.css'; 
+import { FaFacebook, FaTwitter } from 'react-icons/fa';  
+import '../assets/footer.css';  
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ const Footer = () => {
     try {
       await addDoc(collection(db, 'subscriptions'), {
         email: email,
+        subscribedAt: new Date(),
       });
       setMessage('Thank you for subscribing!');
       setEmail('');
@@ -39,10 +41,10 @@ const Footer = () => {
         <div className="socials">
           <h4>Follow Us</h4>
           <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-            <img src="/path-to-your-icons/facebook-icon.png" alt="Facebook" />
+            <FaFacebook size={30} />
           </a>
           <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-            <img src="/path-to-your-icons/twitter-icon.png" alt="Twitter" />
+            <FaTwitter size={30} />
           </a>
         </div>
 
@@ -63,11 +65,9 @@ const Footer = () => {
 
       <div className="bottom-footer">
         <ul className="footer-nav">
-          <li><a href="/adminhome">Home</a></li>
-          <li><a href="/admindashboard">Dashboard</a></li>
-          <li><a href="/adminprofile">Profile</a></li>
-          <li><a href="/adminlogin">Login</a></li>
-          <li><a href="/adminsignup">Sign Up</a></li>
+          <li><a href="/home">Home</a></li>
+          <li><a href="/ourhotels">Our Hotels</a></li>
+          <li><a href="/profile">Profile</a></li>
         </ul>
         <p>© 2024 Your Company Name. All Rights Reserved.</p>
       </div>

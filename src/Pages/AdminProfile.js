@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addRoom } from '../redux/hotelSlice'; // Updated import to match the action
-import { db } from '../Firebase/firebase';
+import { addRoom } from '../redux/hotelSlice';
+import { db, storage } from '../Firebase/firebase'; 
 import { collection, addDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../assets/footer.css';
+import '../assets/AdminProfile.css'; 
 
 function AdminProfile() {
     const dispatch = useDispatch();
 
-    // State to hold room details
     const [roomDetails, setRoomDetails] = useState({
         name: '',
         price: '',
         breakfastIncluded: false,
         amenities: [],
-        image: '',
+        imageFile: null,  
     });
 
-    // Handler to update state based on user input
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        if (type === 'checkbox') {
+        if (type === 'file') {
+            setRoomDetails((prev) => ({ ...prev, imageFile: e.target.files[0] })); 
+        } else if (type === 'checkbox') {
             if (checked) {
                 setRoomDetails((prev) => ({
                     ...prev,
@@ -42,28 +44,43 @@ function AdminProfile() {
         }
     };
 
-    // Handler to submit the form
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
+            let imageUrl = '';
+
+            if (roomDetails.imageFile) {
+                const storageRef = ref(storage, `room-images/${roomDetails.imageFile.name}`);
+                const snapshot = await uploadBytes(storageRef, roomDetails.imageFile);
+                imageUrl = await getDownloadURL(snapshot.ref); 
+            }
+
+            const { imageFile, ...roomDataWithoutImage } = roomDetails; 
+
             const roomData = {
-                ...roomDetails,
-                price: parseFloat(roomDetails.price), // Ensure price is a number
+                ...roomDataWithoutImage,
+                price: parseFloat(roomDetails.price),
+                image: imageUrl,  
             };
+
             const docRef = await addDoc(collection(db, 'rooms'), roomData);
             console.log('Document written with ID: ', docRef.id);
-            // Dispatch the addRoom action to update the Redux state
+
             dispatch(addRoom({ id: docRef.id, ...roomData }));
-            // Reset form after submission
+
+       
             setRoomDetails({
                 name: '',
                 price: '',
                 breakfastIncluded: false,
                 amenities: [],
-                image: '',
+                imageFile: null,
             });
+
+            alert("Room added successfully!");
         } catch (error) {
-            console.error('Error adding document: ', error);
+            console.error('Error adding room: ', error);
         }
     };
 
@@ -73,26 +90,26 @@ function AdminProfile() {
             <div className="admin-profile-container">
                 <h2>Add New Room</h2>
                 <form onSubmit={handleSubmit}>
-                    <label>
+                    <label htmlFor="roomName">
                         Room Name:
-                        <input type="text" name="name" value={roomDetails.name} onChange={handleChange} required />
+                        <input type="text" id="roomName" name="name" autoComplete="off" value={roomDetails.name} onChange={handleChange} required />
                     </label>
-                    <label>
+                    <label htmlFor="roomPrice">
                         Price:
-                        <input type="number" name="price" value={roomDetails.price} onChange={handleChange} required />
+                        <input type="number" id="roomPrice" name="price" value={roomDetails.price} onChange={handleChange} required />
                     </label>
                     <label>
                         Breakfast Included:
-                        <input 
-                            type="checkbox" 
-                            name="breakfastIncluded" 
-                            checked={roomDetails.breakfastIncluded} 
-                            onChange={(e) => setRoomDetails({ ...roomDetails, breakfastIncluded: e.target.checked })} 
+                        <input
+                            type="checkbox"
+                            name="breakfastIncluded"
+                            checked={roomDetails.breakfastIncluded}
+                            onChange={(e) => setRoomDetails({ ...roomDetails, breakfastIncluded: e.target.checked })}
                         />
                     </label>
-                    <label>
-                        Image URL:
-                        <input type="text" name="image" value={roomDetails.image} onChange={handleChange} required />
+                    <label htmlFor="roomImage">
+                        Room Image:
+                        <input type="file" id="roomImage" accept="image/*" name="imageFile" onChange={handleChange} required />
                     </label>
                     <div>
                         Amenities:

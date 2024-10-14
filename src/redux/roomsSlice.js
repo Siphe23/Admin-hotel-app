@@ -1,19 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  rooms: [], // Initialize the rooms array or object
-  // other properties
+  rooms: [], 
+  
 };
 
 const roomsSlice = createSlice({
   name: 'rooms',
   initialState,
   reducers: {
-    // Add your reducers here
+   
     setRooms(state, action) {
       state.rooms = action.payload;
     },
-    // other reducers
+  
   },
 });
 

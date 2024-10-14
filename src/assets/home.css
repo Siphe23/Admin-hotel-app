@@ -5,7 +5,7 @@
 .admin-home-container .welcome-section,
 .admin-home-container .overview-section,
 .admin-home-container .recent-updates {
-  background-color: rgba(255, 255, 255, 0.8); /* Add a semi-transparent background to make text readable */
+  background-color: rgba(255, 255, 255, 0.8); 
   padding: 20px;
   border-radius: 10px;
   margin: 20px;

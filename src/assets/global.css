@@ -1,4 +1,4 @@
-/* src/assets/global.css */
+
 body {
     margin: 0;
     padding: 0;
@@ -6,11 +6,11 @@ body {
 }
 
 .background-global {
-    background-image: url('gs://hotel-booking-app-a083a.appspot.com/Background-images/peop.png.jpg'); /* Replace with the URL of your background image */
-    background-size: cover;  /* Ensures the background covers the entire area */
-    background-position: center; /* Center the background image */
-    background-repeat: no-repeat; /* No repeating */
-    min-height: 100vh; /* Ensures the background covers the full height */
-    position: relative; /* Position relative to allow for absolute child elements */
-    z-index: -1; /* Send it to the back */
+    background-image: url('gs://hotel-booking-app-a083a.appspot.com/Background-images/peop.png.jpg'); 
+    background-size: cover;  
+    background-position: center; 
+    background-repeat: no-repeat; 
+    min-height: 100vh; 
+    position: relative;
+    z-index: -1; 
 }

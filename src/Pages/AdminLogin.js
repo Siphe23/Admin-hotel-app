@@ -4,7 +4,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { login as loginAction } from '../redux/authSlice'; 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import '../assets/auth.css'; 
+
 import '../assets/footer.css';
+
 import { auth } from '../Firebase/firebase'; 
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -38,10 +41,10 @@ const AdminLogin = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true
-    setError(''); // Clear previous errors
+    setLoading(true); 
+    setError(''); 
 
-    console.log("Login Details:", loginDetails); // Log login details
+    console.log("Login Details:", loginDetails); 
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, loginDetails.email, loginDetails.password);
@@ -56,9 +59,9 @@ const AdminLogin = () => {
       }
     } catch (error) {
       console.error('Error during login: ', error);
-      setError(getErrorMessage(error.code)); // Set error message based on the error code
+      setError(getErrorMessage(error.code)); 
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false); 
     }
   };
 
@@ -76,9 +79,9 @@ const AdminLogin = () => {
   return (
     <>
       <Navbar />
-      <div>
+      <div className="login-container">
         <h2>Admin Login</h2>
-        {error && <div className="error-message">{error}</div>} {/* Display error message */}
+        {error && <div className="error-message">{error}</div>} 
         <form className="login-form" onSubmit={handleLoginSubmit}>
           <input 
             type="email" 
@@ -87,6 +90,8 @@ const AdminLogin = () => {
             onChange={handleLoginChange} 
             placeholder="Enter your email" 
             required 
+            disabled={loading} 
+            aria-label="Email"
           />
           <input 
             type="password" 
@@ -95,20 +100,24 @@ const AdminLogin = () => {
             onChange={handleLoginChange} 
             placeholder="Enter your password" 
             required 
+            disabled={loading} 
+            aria-label="Password"
           />
           <select 
             id="userType" 
             value={loginDetails.userType} 
             onChange={handleLoginChange}
+            disabled={loading}
+            aria-label="User Type"
           >
             <option value="admin">Admin</option>
             <option value="user">User</option>
           </select>
           <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'} {/* Button text changes based on loading state */}
+            {loading ? 'Logging in...' : 'Login'} 
           </button>
         </form>
-        <button type="button" onClick={() => console.log(loginDetails)}>Log Details</button> {/* Log details button */}
+       
       </div>
       <Footer />
     </>

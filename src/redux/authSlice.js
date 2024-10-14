@@ -18,7 +18,7 @@ const authSlice = createSlice({
     setError(state, action) {
       state.error = action.payload;
     },
-    login(state, action) { // Add this action
+    login(state, action) {
       state.currentUser = action.payload;
     },
   },

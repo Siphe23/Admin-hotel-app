@@ -3,16 +3,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addRoom, updateRoom, deleteRoom, fetchRooms } from '../redux/hotelSlice';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import '../assets/dashboard.css'; // Ensure this path is correct
+import '../assets/dashboard.css'; 
 
 function AdminDashboard() {
   const dispatch = useDispatch();
-  const { rooms = [], loading, error } = useSelector((state) => state.hotel); // Provide a default value for rooms
+  const { rooms = [], loading, error } = useSelector((state) => state.hotel);
 
-  // State for managing form inputs (consider renaming these if necessary)
+ 
   const [roomName, setRoomName] = useState('');
   const [roomPrice, setRoomPrice] = useState('');
-  const [roomStatus, setRoomStatus] = useState('booked'); // default to 'booked' for displaying booked rooms
+  const [roomStatus, setRoomStatus] = useState('booked'); 
   const [editingRoomId, setEditingRoomId] = useState(null);
 
   useEffect(() => {
@@ -28,18 +28,17 @@ function AdminDashboard() {
     };
 
     if (editingRoomId) {
-      // Update existing room
       dispatch(updateRoom({ id: editingRoomId, data: roomData }));
-      setEditingRoomId(null); // Reset editing state
+      setEditingRoomId(null); 
     } else {
-      // Add new room (if necessary, otherwise remove this block)
+      
       dispatch(addRoom(roomData));
     }
 
-    // Clear form inputs
+   
     setRoomName('');
     setRoomPrice('');
-    setRoomStatus('booked'); // Reset to booked after submission
+    setRoomStatus('booked');
   };
 
   const handleEdit = (room) => {
@@ -70,11 +69,11 @@ function AdminDashboard() {
           <h1>Welcome to the Admin Dashboard</h1>
           <p>Here you can manage your application settings, view reports, and more.</p>
 
-          {/* Display loading or error messages */}
+        
           {loading && <p>Loading rooms...</p>}
           {error && <p>Error loading rooms: {error}</p>}
 
-          {/* Form for adding/editing rooms */}
+         
           <form onSubmit={handleSubmit}>
             <h2>{editingRoomId ? 'Edit Room' : 'Booked Room Information'}</h2>
             <input
@@ -101,13 +100,13 @@ function AdminDashboard() {
             <button type="submit">{editingRoomId ? 'Update Room' : 'Submit'}</button>
           </form>
 
-          {/* Display booked rooms */}
           {rooms.length > 0 && (
             <div className="room-list">
               <h2>Booked Rooms</h2>
               <ul>
                 {rooms
-                  .filter(room => room.status === 'booked') // Filter booked rooms
+                  .filter(room => room.status === 'booked') 
+                
                   .map((room) => (
                     <li key={room.id}>
                       <h3>{room.name}</h3>

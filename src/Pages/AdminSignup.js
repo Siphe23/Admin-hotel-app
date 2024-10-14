@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../assets/footer.css';
-import { auth, storage, db } from '../Firebase/firebase'; // Ensure the correct Firebase imports
+import { auth, storage, db } from '../Firebase/firebase'; 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { useDispatch } from 'react-redux';
-import { login } from '../redux/authSlice'; // Correct import
+import { login } from '../redux/authSlice'; 
+import '../assets/auth.css'; 
+
 
 function AdminSignup() {
   const dispatch = useDispatch();
@@ -42,8 +44,8 @@ function AdminSignup() {
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(''); // Reset error message
-    setSuccessMessage(''); // Reset success message
+    setErrorMessage(''); 
+    setSuccessMessage(''); 
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -81,7 +83,7 @@ function AdminSignup() {
       setImagePreview(null);
     } catch (error) {
       console.error('Error signing up: ', error);
-      setErrorMessage(error.message); // Display Firebase error message
+      setErrorMessage(error.message); 
     }
   };
 

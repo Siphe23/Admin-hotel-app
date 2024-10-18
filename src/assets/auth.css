@@ -1,85 +1,78 @@
+.admin-auth {
+    font-family: Arial, sans-serif;
+    color: #333; /* Dark text color */
+}
 
-.login-container h2 {
+.admin-auth h2 {
     text-align: center;
     margin-bottom: 20px;
+    color: #4a4a4a; /* Darker text for headings */
 }
 
-.login-container,
-.signup-form {
-    max-width: 400px; 
-    margin: 20px auto; 
-    padding: 20px; 
-    border-radius: 8px; 
-    background-color: white; 
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    height: auto; 
+.admin-auth .login-form,
+.admin-auth .signup-form {
+    width: 400px; /* Limit the width of the forms */
+    height: 100%;
+    margin: 0 auto; /* Center the form */
+    padding: 20px;
+    border: 1px solid #ddd; /* Light border for the form */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #ffffff; /* White background for the form */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
-.login-form input,
-.signup-form input,
-.signup-form select {
-    width: 100%; 
-    padding: 10px; 
-    margin: 10px 0; 
-    border: 1px solid #ccc; 
-    border-radius: 5px; 
-    box-sizing: border-box; 
+.admin-auth input[type="text"],
+.admin-auth input[type="email"],
+.admin-auth input[type="tel"],
+.admin-auth input[type="password"],
+.admin-auth select {
+    width: 100%; /* Full width inputs */
+    padding: 10px; /* Add padding for input fields */
+    margin-bottom: 15px; /* Space between inputs */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for inputs */
 }
 
-.login-form input:disabled,
-.signup-form input:disabled,
-.signup-form select:disabled {
-    background-color: #e9ecef; 
+.admin-auth input[type="file"] {
+    margin-bottom: 15px; /* Space for file input */
 }
 
-.login-container button,
-.signup-form button {
-    background-color: #007bff; 
-    color: white; 
-    border: none;
-    padding: 10px; 
-    border-radius: 5px;
-    cursor: pointer; 
-    transition: background-color 0.3s; 
-    width: 100%; 
-    font-size: 16px; 
+.admin-auth button {
+    width: 100%; /* Full width button */
+    padding: 10px;
+    background-color: #007bff; /* Primary button color */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Font size for buttons */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
 }
 
-.login-container button:hover,
-.signup-form button:hover {
-    background-color: #0056b3; 
+.admin-auth button:hover {
+    background-color: #0056b3; /* Darker color on hover */
 }
 
-.error-message {
-    color: red; 
-    text-align: center; 
-    margin-bottom: 10px; 
+.admin-auth img {
+    max-width: 100%; /* Responsive image preview */
+    height: auto; /* Maintain aspect ratio */
+    margin: 10px 0; /* Space around the image */
 }
 
-img {
-    max-width: 100%; 
-    height: auto; 
-    margin-top: 10px; 
+.admin-auth p {
+    text-align: center; /* Center the messages */
+    margin-top: 10px; /* Space above the messages */
 }
 
-
-@media (max-width: 768px) {
-    .login-container,
-    .signup-form {
-        max-width: 90%; 
-        padding: 20px 15px; 
+/* Responsive Styles */
+@media (max-width: 600px) {
+    .admin-auth .login-form,
+    .admin-auth .signup-form {
+        padding: 15px; /* Adjust padding on small screens */
     }
-    
-    .login-container button,
-    .signup-form button {
-        padding: 12px;
-        font-size: 18px; 
-    }
-}
 
-@media (min-width: 769px) {
-    .login-container,
-    .signup-form {
-        height: auto;
+    .admin-auth h2 {
+        font-size: 24px; /* Smaller heading on small screens */
     }
 }

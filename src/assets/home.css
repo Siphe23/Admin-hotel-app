@@ -1,4 +1,10 @@
 .admin-home-container {
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+  }
+  
+.admin-home-container {
     padding: 20px;
     background-color: #f5f5f5;
 }

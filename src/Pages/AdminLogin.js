@@ -1,38 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { login as loginAction } from '../redux/authSlice'; 
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom'; 
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import '../assets/auth.css'; 
-
-import '../assets/footer.css';
-
-import { auth } from '../Firebase/firebase'; 
+import { auth } from '../Firebase/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useDispatch } from 'react-redux';
+import { login } from '../redux/authSlice';
+import '../assets/auth.css';
 
-const AdminLogin = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch(); 
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const userRole = useSelector((state) => state.auth.userRole);
+function AdminLogin() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [loginDetails, setLoginDetails] = useState({
     email: '',
-    password: '',
-    userType: 'admin', 
+    password: ''
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (userRole === 'admin') {
-        navigate('/admindashboard');
-      } else {
-        navigate('/adminhome');
-      }
-    }
-  }, [isAuthenticated, userRole, navigate]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const handleLoginChange = (e) => {
     const { id, value } = e.target;
@@ -41,87 +26,66 @@ const AdminLogin = () => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); 
-    setError(''); 
-
-    console.log("Login Details:", loginDetails); 
+    setLoading(true); // Set loading to true
+    setErrorMessage('');
+    setSuccessMessage('');
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, loginDetails.email, loginDetails.password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        loginDetails.email,
+        loginDetails.password
+      );
       const user = userCredential.user;
 
-      dispatch(loginAction({ role: loginDetails.userType, uid: user.uid }));
+      // Dispatch the login action with user data or role
+      dispatch(login({ role: 'admin' })); // Adjust according to your user type handling
+      setSuccessMessage('Login successful!');
 
-      if (loginDetails.userType === 'admin') {
-        navigate('/admindashboard');
-      } else {
-        navigate('/adminhome');
-      }
+      // Redirect to the admin dashboard
+      navigate('/admindashboard'); // Redirect here
+
     } catch (error) {
-      console.error('Error during login: ', error);
-      setError(getErrorMessage(error.code)); 
+      console.error('Error logging in: ', error);
+      setErrorMessage(error.message);
     } finally {
-      setLoading(false); 
-    }
-  };
-
-  const getErrorMessage = (code) => {
-    switch (code) {
-      case 'auth/user-not-found':
-        return 'No user found with this email.';
-      case 'auth/wrong-password':
-        return 'Incorrect password. Please try again.';
-      default:
-        return 'Login failed. Please check your credentials.';
+      setLoading(false); // Reset loading state
     }
   };
 
   return (
     <>
       <Navbar />
-      <div className="login-container">
-        <h2>Admin Login</h2>
-        {error && <div className="error-message">{error}</div>} 
-        <form className="login-form" onSubmit={handleLoginSubmit}>
-          <input 
-            type="email" 
-            id="email" 
-            value={loginDetails.email} 
-            onChange={handleLoginChange} 
-            placeholder="Enter your email" 
-            required 
-            disabled={loading} 
-            aria-label="Email"
-          />
-          <input 
-            type="password" 
-            id="password" 
-            value={loginDetails.password} 
-            onChange={handleLoginChange} 
-            placeholder="Enter your password" 
-            required 
-            disabled={loading} 
-            aria-label="Password"
-          />
-          <select 
-            id="userType" 
-            value={loginDetails.userType} 
-            onChange={handleLoginChange}
-            disabled={loading}
-            aria-label="User Type"
-          >
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-          </select>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'} 
-          </button>
-        </form>
-       
-      </div>
+      <h2>Login to your account</h2>
+      <form className="login-form" onSubmit={handleLoginSubmit}>
+        <input
+          type="email"
+          id="email"
+          value={loginDetails.email}
+          onChange={handleLoginChange}
+          placeholder="Enter your email"
+          required
+        />
+        <input
+          type="password"
+          id="password"
+          value={loginDetails.password}
+          onChange={handleLoginChange}
+          placeholder="Enter your password"
+          required
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+      </form>
+      <p>
+        Don't have an account? <Link to="/adminsignup">Sign Up</Link>
+      </p>
       <Footer />
     </>
   );
-};
+}
 
 export default AdminLogin;

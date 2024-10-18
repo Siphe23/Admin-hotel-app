@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import '../assets/footer.css';
 import { auth, storage, db } from '../Firebase/firebase'; 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -10,9 +10,9 @@ import { useDispatch } from 'react-redux';
 import { login } from '../redux/authSlice'; 
 import '../assets/auth.css'; 
 
-
 function AdminSignup() {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [userDetails, setUserDetails] = useState({
@@ -72,6 +72,9 @@ function AdminSignup() {
 
       setSuccessMessage('User signed up successfully!');
       dispatch(login({ role: userDetails.userType }));
+
+      // Navigate to the login page after successful signup
+      navigate('/adminlogin');
 
       setUserDetails({
         username: '',

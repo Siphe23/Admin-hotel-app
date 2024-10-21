@@ -10,14 +10,11 @@ import '../assets/auth.css';
 
 function AdminLogin() {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
-  const [loginDetails, setLoginDetails] = useState({
-    email: '',
-    password: ''
-  });
+  const navigate = useNavigate();
+  const [loginDetails, setLoginDetails] = useState({ email: '', password: '' });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   const handleLoginChange = (e) => {
     const { id, value } = e.target;
@@ -26,30 +23,20 @@ function AdminLogin() {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true
+    setLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        loginDetails.email,
-        loginDetails.password
-      );
-      const user = userCredential.user;
-
-      // Dispatch the login action with user data or role
-      dispatch(login({ role: 'admin' })); // Adjust according to your user type handling
+      const userCredential = await signInWithEmailAndPassword(auth, loginDetails.email, loginDetails.password);
+      dispatch(login({ role: 'admin' }));
       setSuccessMessage('Login successful!');
-
-      // Redirect to the admin dashboard
-      navigate('/admindashboard'); // Redirect here
-
+      navigate('/admindashboard');
     } catch (error) {
       console.error('Error logging in: ', error);
       setErrorMessage(error.message);
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 

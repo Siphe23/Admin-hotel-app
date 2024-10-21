@@ -4,12 +4,10 @@ import { storage } from '../Firebase/firebase';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../assets/home.css';
-import { useRatings } from '../context/RatingsContext'; // Import the context
 
 function AdminHome() {
   const [backgroundImages, setBackgroundImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { userRatings } = useRatings(); // Get user ratings from context
   const [loadingImages, setLoadingImages] = useState(true); // Loading state for images
 
   useEffect(() => {
@@ -64,18 +62,6 @@ function AdminHome() {
               <h2>Overview</h2>
               <p>From here, you can quickly access your admin dashboard, manage users, view system statistics, and more.</p>
               
-              {/* Display user ratings */}
-              <h2>User Ratings</h2>
-              {Object.keys(userRatings).length > 0 ? ( // Check if userRatings is not empty
-                <ul>
-                  {Object.entries(userRatings).map(([offerId, rating]) => (
-                    <li key={offerId}>Offer ID: {offerId} - Rating: {rating}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No user ratings available.</p> // Provide feedback if no ratings
-              )}
-
               <div className="quick-links">
                 <a href="/admindashboard" className="quick-link">Go to Dashboard</a>
                 <a href="/adminprofile" className="quick-link">View Profile</a>

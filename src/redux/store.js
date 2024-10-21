@@ -1,16 +1,12 @@
+// redux/store.js
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './authSlice'; 
-import hotelReducer from './hotelSlice'; 
+import hotelReducer from './hotelSlice'; // Adjust the import as necessary
 
 const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    hotel: hotelReducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false, 
-    }),
+    reducer: {
+        hotel: hotelReducer,
+        
+    },
 });
 
 export default store;

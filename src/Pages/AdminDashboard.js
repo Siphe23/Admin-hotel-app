@@ -1,123 +1,165 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addRoom, updateRoom, deleteRoom, fetchRooms } from '../redux/hotelSlice'; // Ensure fetchRooms is imported
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import '../assets/dashboard.css';
+import { addRoomToFirestore, fetchRoomsFromFirestore } from '../redux/hotelSlice';
+import { auth } from '../Firebase/firebase';
+import { storage } from '../Firebase/firebase'; // Import Firebase storage for image uploads
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase storage methods
 
-function AdminDashboard() {
+const AdminDashboard = () => {
   const dispatch = useDispatch();
-  const { rooms = [], loading, error } = useSelector((state) => state.hotel);
+  const [roomDetails, setRoomDetails] = useState({
+    name: '',
+    price: '',
+    description: '',
+    breakfastIncluded: false,
+    availability: true,
+    amenities: [],
+    facilities: '',
+    policies: '',
+  });
+  const [imageUpload, setImageUpload] = useState(null); // For storing the image to upload
+  const [imageURL, setImageURL] = useState(''); // For storing the image URL from Firebase
 
-  const [roomName, setRoomName] = useState('');
-  const [roomPrice, setRoomPrice] = useState('');
-  const [roomStatus, setRoomStatus] = useState('booked');
-  const [editingRoomId, setEditingRoomId] = useState(null);
-
-  useEffect(() => {
-    dispatch(fetchRooms());
-  }, [dispatch]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const roomData = {
-      name: roomName,
-      price: Number(roomPrice),
-      status: roomStatus,
-    };
 
-    if (editingRoomId) {
-      dispatch(updateRoom({ id: editingRoomId, data: roomData }));
-      setEditingRoomId(null);
-    } else {
-      dispatch(addRoom(roomData));
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You need to be logged in to add rooms.");
+      return;
     }
 
-    setRoomName('');
-    setRoomPrice('');
-    setRoomStatus('booked');
+    const token = await user.getIdTokenResult();
+    if (!token.claims.admin) {
+      alert("You do not have permission to add rooms.");
+      return;
+    }
+
+    // Handle image upload if an image is selected
+    if (imageUpload) {
+      const imageRef = ref(storage, `images/${imageUpload.name}`);
+      await uploadBytes(imageRef, imageUpload).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((url) => {
+          setImageURL(url); // Set the image URL for Firestore
+        });
+      });
+    }
+
+    const roomData = {
+      name: roomDetails.name,
+      price: parseFloat(roomDetails.price),
+      description: roomDetails.description,
+      breakfastIncluded: roomDetails.breakfastIncluded,
+      availability: roomDetails.availability,
+      amenities: roomDetails.amenities.length > 0 ? roomDetails.amenities : [],
+      facilities: roomDetails.facilities,  // Hotel facilities field
+      policies: roomDetails.policies,      // Hotel policies field
+      imageUrl: imageURL,  // Store the image URL from Firebase Storage
+    };
+
+    try {
+      const response = await dispatch(addRoomToFirestore(roomData));
+      console.log('Room added with ID:', response.payload.id);
+      alert("Room added successfully!");
+      setRoomDetails({
+        name: '',
+        price: '',
+        description: '',
+        breakfastIncluded: false,
+        availability: true,
+        amenities: [],
+        facilities: '',
+        policies: '',
+      });
+      setImageUpload(null); // Reset the image upload field
+    } catch (error) {
+      console.error('Error adding room:', error);
+      alert('Failed to add room. Please check the console for more details.');
+    }
   };
 
-  const handleEdit = (room) => {
-    setRoomName(room.name);
-    setRoomPrice(room.price);
-    setRoomStatus(room.status);
-    setEditingRoomId(room.id);
-  };
-
-  const handleDelete = (roomId) => {
-    dispatch(deleteRoom(roomId));
-  };
+  // Fetch rooms when the component mounts
+  useEffect(() => {
+    dispatch(fetchRoomsFromFirestore());
+  }, [dispatch]);
 
   return (
-    <>
-      <Navbar />
-      <div className="dashboard-container">
-        <aside className="sidebar">
-          <h2>Admin Menu</h2>
-          <ul>
-            <li><a href="/adminhome">Home</a></li>
-            <li><a href="/admindashboard">Dashboard</a></li>
-            <li><a href="/adminprofile">Profile</a></li>
-            <li><a href="/adminlogout">Logout</a></li>
-          </ul>
-        </aside>
-        <main className="main-content">
-          <h1>Welcome to the Admin Dashboard</h1>
-          <p>Here you can manage your application settings, view reports, and more.</p>
+    <div>
+      <h2>Add Room</h2>
+      <form onSubmit={handleSubmit}>
+        {/* Room Name */}
+        <input
+          type="text"
+          value={roomDetails.name}
+          onChange={(e) => setRoomDetails({ ...roomDetails, name: e.target.value })}
+          placeholder="Room Name"
+          required
+        />
 
-          {loading && <p>Loading rooms...</p>}
-          {error && <p>Error loading rooms: {error}</p>}
+        {/* Room Price */}
+        <input
+          type="number"
+          value={roomDetails.price}
+          onChange={(e) => setRoomDetails({ ...roomDetails, price: e.target.value })}
+          placeholder="Price"
+          required
+        />
 
-          <form onSubmit={handleSubmit}>
-            <h2>{editingRoomId ? 'Edit Room' : 'Booked Room Information'}</h2>
-            <input
-              type="text"
-              value={roomName}
-              onChange={(e) => setRoomName(e.target.value)}
-              placeholder="Room Name"
-              required
-            />
-            <input
-              type="number"
-              value={roomPrice}
-              onChange={(e) => setRoomPrice(e.target.value)}
-              placeholder="Room Price"
-              required
-            />
-            <select
-              value={roomStatus}
-              onChange={(e) => setRoomStatus(e.target.value)}
-            >
-              <option value="available">Available</option>
-              <option value="booked">Booked</option>
-            </select>
-            <button type="submit">{editingRoomId ? 'Update Room' : 'Submit'}</button>
-          </form>
+        {/* Room Description */}
+        <textarea
+          value={roomDetails.description}
+          onChange={(e) => setRoomDetails({ ...roomDetails, description: e.target.value })}
+          placeholder="Description"
+          required
+        />
 
-          {rooms.length > 0 && (
-            <div className="room-list">
-              <h2>Booked Rooms</h2>
-              <ul>
-                {rooms
-                  .filter(room => room.status === 'booked')
-                  .map((room) => (
-                    <li key={room.id}>
-                      <h3>{room.name}</h3>
-                      <p>Price: {room.price}</p>
-                      <p>Status: {room.status}</p>
-                      <button onClick={() => handleEdit(room)}>Edit</button>
-                      <button onClick={() => handleDelete(room.id)}>Delete</button>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-        </main>
-      </div>
-      <Footer />
-    </>
+        {/* Hotel Facilities */}
+        <textarea
+          value={roomDetails.facilities}
+          onChange={(e) => setRoomDetails({ ...roomDetails, facilities: e.target.value })}
+          placeholder="Facilities (e.g., WiFi, Pool, Parking)"
+          required
+        />
+
+        {/* Hotel Policies */}
+        <textarea
+          value={roomDetails.policies}
+          onChange={(e) => setRoomDetails({ ...roomDetails, policies: e.target.value })}
+          placeholder="Policies (e.g., Check-in, Check-out times)"
+          required
+        />
+
+        {/* Image Upload */}
+        <input
+          type="file"
+          onChange={(e) => setImageUpload(e.target.files[0])}
+          required
+        />
+
+        {/* Breakfast Included */}
+        <label>
+          <input
+            type="checkbox"
+            checked={roomDetails.breakfastIncluded}
+            onChange={(e) => setRoomDetails({ ...roomDetails, breakfastIncluded: e.target.checked })}
+          />
+          Breakfast Included
+        </label>
+
+        {/* Room Availability */}
+        <label>
+          <input
+            type="checkbox"
+            checked={roomDetails.availability}
+            onChange={(e) => setRoomDetails({ ...roomDetails, availability: e.target.checked })}
+          />
+          Available
+        </label>
+
+        <button type="submit">Add Room</button>
+      </form>
+    </div>
   );
-}
+};
 
 export default AdminDashboard;

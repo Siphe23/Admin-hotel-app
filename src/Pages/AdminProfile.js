@@ -1,21 +1,43 @@
-import React, { useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addRoom } from '../redux/hotelSlice'; 
-import { storage } from '../Firebase/firebase'; 
+import { addRoomToFirestore } from '../redux/hotelSlice';
+import { storage, db } from '../Firebase/firebase';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth'; // Import Firebase Auth
 
 function AdminProfile() {
     const dispatch = useDispatch();
-
+    const [isAdmin, setIsAdmin] = useState(false);
     const [roomDetails, setRoomDetails] = useState({
         name: '',
         price: '',
         description: '',
         breakfastIncluded: false,
-        availability: true, 
+        availability: true,
         amenities: [],
-        imageFiles: [], 
+        address: '',
+        starRating: '',
+        policies: '',
+        mapLocation: '',
+        imageFiles: [],
     });
+
+    const auth = getAuth(); // Get auth instance
+
+    useEffect(() => {
+        const checkAdminRole = async () => {
+            const user = auth.currentUser;
+            if (user) {
+                const idTokenResult = await user.getIdTokenResult();
+                setIsAdmin(idTokenResult.claims.admin || false);
+            }
+        };
+
+        checkAdminRole();
+    }, [auth]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -42,9 +64,10 @@ function AdminProfile() {
             imageFiles: files,
         }));
     };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
+
         try {
             const imageUrls = await Promise.all(
                 roomDetails.imageFiles.map(async (file) => {
@@ -53,18 +76,21 @@ function AdminProfile() {
                     return await getDownloadURL(snapshot.ref);
                 })
             );
-    
+
             const { imageFiles, ...roomDataWithoutImage } = roomDetails;
-    
+
             const roomData = {
                 ...roomDataWithoutImage,
                 price: parseFloat(roomDetails.price),
-                images: imageUrls, // Store as an array of URLs
+                images: imageUrls,
             };
-    
-            // Dispatching the addRoom action
-            dispatch(addRoom(roomData));
-    
+
+            // Add room to Firestore
+            await addDoc(collection(db, 'rooms'), roomData);
+
+            // Dispatch Redux action
+            dispatch(addRoomToFirestore(roomData));
+
             // Reset form after submission
             setRoomDetails({
                 name: '',
@@ -73,73 +99,131 @@ function AdminProfile() {
                 breakfastIncluded: false,
                 availability: true,
                 amenities: [],
-                imageFiles: [], // Reset the image files
+                address: '',
+                starRating: '',
+                policies: '',
+                mapLocation: '',
+                imageFiles: [],
             });
-    
-            alert("Room added successfully!");
+
+            alert('Room added successfully!');
         } catch (error) {
             console.error('Error adding room: ', error);
             alert('Failed to add room. Please try again later.');
         }
     };
-    
+
+    if (!isAdmin) {
+        return <p>You do not have permission to access this page.</p>; // Show message if user is not admin
+    }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Add New Room</h2>
-            <div>
-                <label>
-                    Room Name:
-                    <input type="text" name="name" value={roomDetails.name} onChange={handleChange} required />
-                </label>
+        <>
+            <Navbar />
+            <div className="form-container">
+                <form onSubmit={handleSubmit}>
+                    <h2>Add New Room</h2>
+
+                    <label>Name:</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={roomDetails.name}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <label>Price (per night):</label>
+                    <input
+                        type="number"
+                        name="price"
+                        value={roomDetails.price}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <label>Description:</label>
+                    <textarea
+                        name="description"
+                        value={roomDetails.description}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <label>Breakfast Included:</label>
+                    <input
+                        type="checkbox"
+                        name="breakfastIncluded"
+                        checked={roomDetails.breakfastIncluded}
+                        onChange={handleChange}
+                    />
+
+                    <label>Availability:</label>
+                    <input
+                        type="checkbox"
+                        name="availability"
+                        checked={roomDetails.availability}
+                        onChange={handleChange}
+                    />
+
+                    <label>Amenities (e.g. Wi-Fi, Pool):</label>
+                    <input
+                        type="text"
+                        value=""
+                        placeholder="Add amenity"
+                        onBlur={handleAmenitiesChange}
+                    />
+                    <ul>
+                        {roomDetails.amenities.map((amenity, index) => (
+                            <li key={index}>{amenity}</li>
+                        ))}
+                    </ul>
+
+                    <label>Address:</label>
+                    <input
+                        type="text"
+                        name="address"
+                        value={roomDetails.address}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <label>Star Rating (1-5):</label>
+                    <input
+                        type="number"
+                        name="starRating"
+                        value={roomDetails.starRating}
+                        onChange={handleChange}
+                        min="1"
+                        max="5"
+                        required
+                    />
+
+                    <label>Hotel Policies:</label>
+                    <textarea
+                        name="policies"
+                        value={roomDetails.policies}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <label>Upload Images:</label>
+                    <input
+                        type="file"
+                        multiple
+                        onChange={handleImageChange}
+                    />
+
+                    <button type="submit">Add Room</button>
+                </form>
             </div>
-            <div>
-                <label>
-                    Price:
-                    <input type="number" name="price" value={roomDetails.price} onChange={handleChange} required />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Description:
-                    <textarea name="description" value={roomDetails.description} onChange={handleChange} required />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Breakfast Included:
-                    <input type="checkbox" name="breakfastIncluded" checked={roomDetails.breakfastIncluded} onChange={handleChange} />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Availability:
-                    <input type="checkbox" name="availability" checked={roomDetails.availability} onChange={handleChange} />
-                </label>
-            </div>
-            <div>
-                <label>
-                    Amenities:
-                    <select multiple onChange={handleAmenitiesChange}>
-                        <option value="WiFi">WiFi</option>
-                        <option value="Pool">Pool</option>
-                        <option value="Gym">Gym</option>
-                        <option value="Parking">Parking</option>
-                    </select>
-                </label>
-            </div>
-            <div>
-                <label>
-                    Room Images:
-                    <input type="file" accept="image/*" multiple onChange={handleImageChange} required />
-                </label>
-            </div>
-            <button type="submit">Add Room</button>
-        </form>
+            <Footer />
+        </>
     );
 }
 
 export default AdminProfile;
+
 
 
 // import { useDispatch, useSelector } from 'react-redux';

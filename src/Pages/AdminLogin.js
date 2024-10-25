@@ -16,11 +16,13 @@ function AdminLogin() {
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Handle input changes
   const handleLoginChange = (e) => {
     const { id, value } = e.target;
     setLoginDetails((prevDetails) => ({ ...prevDetails, [id]: value }));
   };
 
+  // Handle login submission
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -28,13 +30,25 @@ function AdminLogin() {
     setSuccessMessage('');
 
     try {
+      // Firebase authentication
       const userCredential = await signInWithEmailAndPassword(auth, loginDetails.email, loginDetails.password);
-      dispatch(login({ role: 'admin' }));
-      setSuccessMessage('Login successful!');
-      navigate('/admindashboard');
+      const user = userCredential.user;
+
+      // Check if user has admin claim
+      const token = await user.getIdTokenResult();
+      if (token.claims.admin) {
+        // Dispatch admin role to Redux store
+        dispatch(login({ role: 'admin' }));
+        setSuccessMessage('Login successful!');
+        setLoginDetails({ email: '', password: '' }); // Reset form fields
+        navigate('/admindashboard'); // Redirect to admin dashboard
+      } else {
+        setErrorMessage('You do not have permission to access the admin dashboard.');
+        auth.signOut(); // Optionally sign out the user
+      }
     } catch (error) {
       console.error('Error logging in: ', error);
-      setErrorMessage(error.message);
+      setErrorMessage('Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -52,6 +66,7 @@ function AdminLogin() {
           onChange={handleLoginChange}
           placeholder="Enter your email"
           required
+          disabled={loading} // Disable input during loading
         />
         <input
           type="password"
@@ -60,6 +75,7 @@ function AdminLogin() {
           onChange={handleLoginChange}
           placeholder="Enter your password"
           required
+          disabled={loading} // Disable input during loading
         />
         <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}

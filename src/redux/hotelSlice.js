@@ -1,55 +1,27 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { db } from '../Firebase/firebase'; 
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { createSlice } from '@reduxjs/toolkit';
 
-// Thunk to fetch rooms from Firestore
-export const fetchRoomsFromFirestore = createAsyncThunk(
-  'rooms/fetchRooms',
-  async () => {
-    const roomsCol = collection(db, 'rooms'); 
-    const roomSnapshot = await getDocs(roomsCol);
-    const roomList = roomSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return roomList;
-  }
-);
-
-// Thunk to add a room to Firestore
-export const addRoomToFirestore = createAsyncThunk(
-  'rooms/addRoom',
-  async (roomData, { rejectWithValue }) => {
-    try {
-      const roomsCol = collection(db, 'rooms');
-      const docRef = await addDoc(roomsCol, roomData);
-      return { id: docRef.id, ...roomData };
-    } catch (error) {
-      return rejectWithValue(error.message); // Handle errors properly
-    }
-  }
-);
-
-// Create the hotel slice
 const hotelSlice = createSlice({
-  name: 'hotel',
-  initialState: {
-    rooms: [],
-    status: 'idle',
-    error: null,
-  },
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchRoomsFromFirestore.fulfilled, (state, action) => {
-        state.rooms = action.payload;
-      })
-      .addCase(addRoomToFirestore.fulfilled, (state, action) => {
-        state.rooms.push(action.payload);
-      })
-      .addCase(addRoomToFirestore.rejected, (state, action) => {
-        state.error = action.payload; // Handle errors
-      });
-  },
+    name: 'hotel',
+    initialState: {
+        rooms: [],
+    },
+    reducers: {
+        addRoomToFirestore: (state, action) => {
+            state.rooms.push(action.payload);
+        },
+        // Add this reducer for updating a room
+        updateRoomInFirestore: (state, action) => {
+            const index = state.rooms.findIndex(room => room.id === action.payload.id);
+            if (index !== -1) {
+                state.rooms[index] = action.payload; // Update the room details
+            }
+        },
+        fetchRoomsFromFirestore: (state, action) => {
+            state.rooms = action.payload;
+        },
+    },
 });
 
-// Export the async thunks once
-export default hotelSlice.reducer;
+export const { addRoomToFirestore, updateRoomInFirestore, fetchRoomsFromFirestore } = hotelSlice.actions;
 
+export default hotelSlice.reducer;

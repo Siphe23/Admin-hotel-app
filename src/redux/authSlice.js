@@ -1,29 +1,31 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../Firebase/firebase'; // Import Firebase auth instance
 
-const initialState = {
-  currentUser: null,
-  error: null,
-};
-
-const authSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    setCurrentUser(state, action) {
-      state.currentUser = action.payload;
-    },
-    clearCurrentUser(state) {
-      state.currentUser = null;
-    },
-    setError(state, action) {
-      state.error = action.payload;
-    },
-    login(state, action) {
-      state.currentUser = action.payload;
-    },
-  },
+export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return userCredential.user;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
 });
 
-export const { setCurrentUser, clearCurrentUser, setError, login } = authSlice.actions;
+const authSlice = createSlice({
+    name: 'auth',
+    initialState: { user: null, status: null, error: null },
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(login.fulfilled, (state, action) => {
+                state.user = action.payload;
+                state.status = 'succeeded';
+            })
+            .addCase(login.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            });
+    },
+});
 
 export default authSlice.reducer;

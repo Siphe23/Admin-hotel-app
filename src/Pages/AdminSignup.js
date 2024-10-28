@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { useNavigate } from 'react-router-dom';
+
 import { auth, storage, db } from '../Firebase/firebase'; 
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { useDispatch } from 'react-redux';
-import { login } from '../redux/authSlice'; 
-import '../assets/auth.css'; 
+import { login } from '../redux/authSlice';
+import '../assets/auth.css';
 
 function AdminSignup() {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [userDetails, setUserDetails] = useState({
@@ -44,8 +43,8 @@ function AdminSignup() {
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(''); 
-    setSuccessMessage(''); 
+    setErrorMessage('');
+    setSuccessMessage('');
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -86,13 +85,13 @@ function AdminSignup() {
       setImagePreview(null);
     } catch (error) {
       console.error('Error signing up: ', error);
-      setErrorMessage(error.message); 
+      setErrorMessage(error.message);
     }
   };
 
   return (
     <>
-      <Navbar />
+   
       <h2>Sign up to create an account</h2>
       <form className="signup-form" onSubmit={handleSignupSubmit}>
         <input 
@@ -145,7 +144,7 @@ function AdminSignup() {
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
         {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       </form>
-      <Footer />
+   
     </>
   );
 }

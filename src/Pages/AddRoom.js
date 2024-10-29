@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addRoomToFirestore } from '../redux/hotelSlice'; // Adjust the path as necessary
+import { addRoomToFirestore } from '../redux/hotelSlice';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const storage = getStorage();
+
+const uploadImages = async (files) => {
+    const uploadPromises = files.map(async (file) => {
+        const fileRef = ref(storage, `rooms/${file.name}`);
+        await uploadBytes(fileRef, file);
+        return await getDownloadURL(fileRef);
+    });
+    return Promise.all(uploadPromises);
+};
 
 function AddRoom() {
     const dispatch = useDispatch();
@@ -11,19 +23,8 @@ function AddRoom() {
         price: '',
         description: '',
         amenities: [],
-        imageFiles: []
+        imageFiles: [],
     });
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await dispatch(addRoomToFirestore(roomDetails)).unwrap();
-            alert('Room added successfully!');
-            setRoomDetails({ roomName: '', price: '', description: '', amenities: [], imageFiles: [] });
-        } catch (error) {
-            alert('Failed to add room: ' + error.message);
-        }
-    };
 
     const handleAmenityChange = (e) => {
         const { value, checked } = e.target;
@@ -38,6 +39,22 @@ function AddRoom() {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         setRoomDetails((prevDetails) => ({ ...prevDetails, imageFiles: files }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const imageUrls = await uploadImages(roomDetails.imageFiles);
+            const roomData = {
+                ...roomDetails,
+                imageFiles: imageUrls,
+            };
+            await dispatch(addRoomToFirestore(roomData)).unwrap();
+            alert('Room added successfully!');
+            setRoomDetails({ roomName: '', price: '', description: '', amenities: [], imageFiles: [] });
+        } catch (error) {
+            alert('Failed to add room: ' + error.message);
+        }
     };
 
     return (
@@ -71,27 +88,15 @@ function AddRoom() {
 
                 <label>Amenities:</label>
                 <div>
-                    <label>
-                        <input
-                            type="checkbox"
-                            value="WiFi"
-                            onChange={handleAmenityChange}
-                        /> WiFi
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            value="Breakfast"
-                            onChange={handleAmenityChange}
-                        /> Breakfast
-                    </label>
-                    <label>
-                        <input
-                            type="checkbox"
-                            value="Parking"
-                            onChange={handleAmenityChange}
-                        /> Parking
-                    </label>
+                    {['WiFi', 'Breakfast', 'Parking'].map((amenity) => (
+                        <label key={amenity}>
+                            <input
+                                type="checkbox"
+                                value={amenity}
+                                onChange={handleAmenityChange}
+                            /> {amenity}
+                        </label>
+                    ))}
                 </div>
 
                 <label>Images:</label>

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
 import { storage } from '../Firebase/firebase'; 
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import '../assets/home.css';
 
 function AdminHome() {
@@ -37,8 +35,7 @@ function AdminHome() {
   }, [backgroundImages]);
 
   return (
-    <>
-      <Navbar />
+  
       <div
         className="admin-home-container"
         style={{
@@ -79,8 +76,7 @@ function AdminHome() {
           </>
         )}
       </div>
-      <Footer />
-    </>
+    
   );
 }
 

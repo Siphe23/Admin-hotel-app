@@ -1,5 +1,6 @@
 {
   "name": "admin-hotel-app",
+<<<<<<< HEAD
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -20,18 +21,16 @@
     "stream-http": "^3.2.0",
     "web-vitals": "^2.1.4"
   },
+=======
+  "version": "1.0.0",
+>>>>>>> 900a75541e85e52758c0bdb372777001c0775564
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
+  "dependencies": {},
   "browserslist": {
     "production": [
       ">0.2%",
@@ -43,9 +42,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4"
   }
 }

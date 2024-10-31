@@ -6,8 +6,8 @@ import AdminDashboard from './Pages/AdminDashboard';
 import AdminLogin from './Pages/AdminLogin';
 import AddRoom from './Pages/AddRoom';
 import AdminSignup from './Pages/AdminSignup';
-import Navbar from './components/Navbar'; // Import your Navbar
-import Footer from './components/Footer'; // Import your Footer
+import Navbar from './components/Navbar'; 
+import Footer from './components/Footer'; 
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
@@ -22,18 +22,17 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} /> {/* Render Navbar once */}
+      <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<Navigate to="/adminhome" />} />
         <Route path="/adminhome" element={<AdminHome />} />
         <Route path="/adminlogin" element={<AdminLogin onLogin={handleLogin} />} />
         <Route path="/adminsignup" element={<AdminSignup />} />
-        {/* Protected routes */}
         <Route path="/admindashboard" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/adminlogin" />} />
         <Route path="/adminprofile" element={isAuthenticated ? <AdminProfile /> : <Navigate to="/adminlogin" />} />
         <Route path="/addroom" element={isAuthenticated ? <AddRoom /> : <Navigate to="/adminlogin" />} />
       </Routes>
-      <Footer /> {/* Render Footer once */}
+      <Footer />
     </Router>
   );
 };
